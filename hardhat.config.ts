@@ -26,7 +26,7 @@ const BASE_API_KEY = process.env.BASE_API_KEY || "api-key";
 const AVALANCHE_API_KEY = process.env.AVALANCHE_API_KEY || "api-key";
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.19',
+  solidity: '0.8.20',
   networks: {
     hardhat: {
       gas: 30e6,

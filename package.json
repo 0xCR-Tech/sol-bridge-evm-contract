@@ -9,7 +9,6 @@
     "test-sepolia": "npx hardhat test ./test/Bridge.test.js --network sepolia",
     "transferOwnership-sepolia": "npx hardhat run ./scripts/transferOwnership.js --network sepolia",
     "acceptOwnership-sepolia": "npx hardhat run ./scripts/acceptOwnership.js --network sepolia",
-
     "deployMockUSDT-bscTestnet": "npx hardhat run ./scripts/deployMockUSDT.js --network bscTestnet",
     "deployMockUSDC-bscTestnet": "npx hardhat run ./scripts/deployMockUSDC.js --network bscTestnet",
     "deployBridge-bscTestnet": "npx hardhat run ./scripts/deployBridge.js --network bscTestnet",
@@ -17,7 +16,6 @@
     "test-bscTestnet": "npx hardhat test ./test/Bridge.test.js --network bscTestnet",
     "transferOwnership-bscTestnet": "npx hardhat run ./scripts/transferOwnership.js --network bscTestnet",
     "acceptOwnership-bscTestnet": "npx hardhat run ./scripts/acceptOwnership.js --network bscTestnet",
-
     "deployMockUSDT-arbitrumSepolia": "npx hardhat run ./scripts/deployMockUSDT.js --network arbitrumSepolia",
     "deployMockUSDC-arbitrumSepolia": "npx hardhat run ./scripts/deployMockUSDC.js --network arbitrumSepolia",
     "deployBridge-arbitrumSepolia": "npx hardhat run ./scripts/deployBridge.js --network arbitrumSepolia",
@@ -25,7 +23,6 @@
     "test-arbitrumSepolia": "npx hardhat test ./test/Bridge.test.js --network arbitrumSepolia",
     "transferOwnership-arbitrumSepolia": "npx hardhat run ./scripts/transferOwnership.js --network arbitrumSepolia",
     "acceptOwnership-arbitrumSepolia": "npx hardhat run ./scripts/acceptOwnership.js --network arbitrumSepolia",
-
     "deployMockUSDT-optimismSepolia": "npx hardhat run ./scripts/deployMockUSDT.js --network optimismSepolia",
     "deployMockUSDC-optimismSepolia": "npx hardhat run ./scripts/deployMockUSDC.js --network optimismSepolia",
     "deployBridge-optimismSepolia": "npx hardhat run ./scripts/deployBridge.js --network optimismSepolia",
@@ -33,7 +30,6 @@
     "test-optimismSepolia": "npx hardhat test ./test/Bridge.test.js --network optimismSepolia",
     "transferOwnership-optimismSepolia": "npx hardhat run ./scripts/transferOwnership.js --network optimismSepolia",
     "acceptOwnership-optimismSepolia": "npx hardhat run ./scripts/acceptOwnership.js --network optimismSepolia",
-
     "deployMockUSDT-baseSepolia": "npx hardhat run ./scripts/deployMockUSDT.js --network baseSepolia",
     "deployMockUSDC-baseSepolia": "npx hardhat run ./scripts/deployMockUSDC.js --network baseSepolia",
     "deployBridge-baseSepolia": "npx hardhat run ./scripts/deployBridge.js --network baseSepolia",
@@ -41,7 +37,6 @@
     "test-baseSepolia": "npx hardhat test ./test/Bridge.test.js --network baseSepolia",
     "transferOwnership-baseSepolia": "npx hardhat run ./scripts/transferOwnership.js --network baseSepolia",
     "acceptOwnership-baseSepolia": "npx hardhat run ./scripts/acceptOwnership.js --network baseSepolia",
-
     "deployMockUSDT-polygonAmoy": "npx hardhat run ./scripts/deployMockUSDT.js --network polygonAmoy",
     "deployMockUSDC-polygonAmoy": "npx hardhat run ./scripts/deployMockUSDC.js --network polygonAmoy",
     "deployBridge-polygonAmoy": "npx hardhat run ./scripts/deployBridge.js --network polygonAmoy",
@@ -49,7 +44,6 @@
     "test-polygonAmoy": "npx hardhat test ./test/Bridge.test.js --network polygonAmoy",
     "transferOwnership-polygonAmoy": "npx hardhat run ./scripts/transferOwnership.js --network polygonAmoy",
     "acceptOwnership-polygonAmoy": "npx hardhat run ./scripts/acceptOwnership.js --network polygonAmoy",
-
     "deployMockUSDT-avalancheFuji": "npx hardhat run ./scripts/deployMockUSDT.js --network avalancheFuji",
     "deployMockUSDC-avalancheFuji": "npx hardhat run ./scripts/deployMockUSDC.js --network avalancheFuji",
     "deployBridge-avalancheFuji": "npx hardhat run ./scripts/deployBridge.js --network avalancheFuji",
@@ -57,43 +51,36 @@
     "test-avalancheFuji": "npx hardhat test ./test/Bridge.test.js --network avalancheFuji",
     "transferOwnership-avalancheFuji": "npx hardhat run ./scripts/transferOwnership.js --network avalancheFuji",
     "acceptOwnership-avalancheFuji": "npx hardhat run ./scripts/acceptOwnership.js --network avalancheFuji",
-
     "deployMockUSDT-eth": "npx hardhat run ./scripts/deployMockUSDT.js --network mainnet",
     "deployMockUSDC-eth": "npx hardhat run ./scripts/deployMockUSDC.js --network mainnet",
     "deployBridge-eth": "npx hardhat run ./scripts/deployBridge.js --network mainnet",
     "configBridge-eth": "npx hardhat run ./scripts/configBridge.js --network mainnet",
     "test-eth": "npx hardhat test ./test/Bridge.test.js --network mainnet",
-
     "deployMockUSDT-bsc": "npx hardhat run ./scripts/deployMockUSDT.js --network bsc",
     "deployMockUSDC-bsc": "npx hardhat run ./scripts/deployMockUSDC.js --network bsc",
     "deployBridge-bsc": "npx hardhat run ./scripts/deployBridge.js --network bsc",
     "configBridge-bsc": "npx hardhat run ./scripts/configBridge.js --network bsc",
     "test-bsc": "npx hardhat test ./test/Bridge.test.js --network bsc",
-
     "deployMockUSDT-arbitrumOne": "npx hardhat run ./scripts/deployMockUSDT.js --network arbitrumOne",
     "deployMockUSDC-arbitrumOne": "npx hardhat run ./scripts/deployMockUSDC.js --network arbitrumOne",
     "deployBridge-arbitrumOne": "npx hardhat run ./scripts/deployBridge.js --network arbitrumOne",
     "configBridge-arbitrumOne": "npx hardhat run ./scripts/configBridge.js --network arbitrumOne",
     "test-arbitrumOne": "npx hardhat test ./test/Bridge.test.js --network arbitrumOne",
-
     "deployMockUSDT-optimisticEthereum": "npx hardhat run ./scripts/deployMockUSDT.js --network optimisticEthereum",
     "deployMockUSDC-optimisticEthereum": "npx hardhat run ./scripts/deployMockUSDC.js --network optimisticEthereum",
     "deployBridge-optimisticEthereum": "npx hardhat run ./scripts/deployBridge.js --network optimisticEthereum",
     "configBridge-optimisticEthereum": "npx hardhat run ./scripts/configBridge.js --network optimisticEthereum",
     "test-optimisticEthereum": "npx hardhat test ./test/Bridge.test.js --network optimisticEthereum",
-
     "deployMockUSDT-base": "npx hardhat run ./scripts/deployMockUSDT.js --network base",
     "deployMockUSDC-base": "npx hardhat run ./scripts/deployMockUSDC.js --network base",
     "deployBridge-base": "npx hardhat run ./scripts/deployBridge.js --network base",
     "configBridge-base": "npx hardhat run ./scripts/configBridge.js --network base",
     "test-base": "npx hardhat test ./test/Bridge.test.js --network base",
-    
     "deployMockUSDT-polygon": "npx hardhat run ./scripts/deployMockUSDT.js --network polygon",
     "deployMockUSDC-polygon": "npx hardhat run ./scripts/deployMockUSDC.js --network polygon",
     "deployBridge-polygon": "npx hardhat run ./scripts/deployBridge.js --network polygon",
     "configBridge-polygon": "npx hardhat run ./scripts/configBridge.js --network polygon",
     "test-polygon": "npx hardhat test ./test/Bridge.test.js --network polygon",
-
     "deployMockUSDT-avalancheCChain": "npx hardhat run ./scripts/deployMockUSDT.js --network avalancheCChain",
     "deployMockUSDC-avalancheCChain": "npx hardhat run ./scripts/deployMockUSDC.js --network avalancheCChain",
     "deployBridge-avalancheCChain": "npx hardhat run ./scripts/deployBridge.js --network avalancheCChain",
@@ -101,12 +88,10 @@
     "test-avalancheCChain": "npx hardhat test ./test/Bridge.test.js --network avalancheCChain"
   },
   "devDependencies": {
-    "@chainlink/contracts": "^0.6.1",
-    "@chainlink/contracts-ccip": "^1.2.1",
-    "@chainlink/env-enc": "^1.0.5",
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
+    "@openzeppelin/contracts": "^5.0.2",
     "dotenv": "^16.4.5",
     "ethers": "^5.7.2",
     "hardhat": "^2.14.1",
