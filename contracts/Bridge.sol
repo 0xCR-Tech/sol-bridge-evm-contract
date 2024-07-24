@@ -22,16 +22,14 @@ contract Bridge is Ownable, ReentrancyGuard {
 
     // Event emitted when a message is sent to another chain.
     event AddLiquidity(
-        uint64 indexed targetChainSelector, // The chain selector of the target chain.
-        address receiver, // The address of the receiver on the target chain.
+        uint256 indexed targetChainSelector, // The chain selector of the target chain.
         uint16 msgType, // The type of message.
         address toAddress, // The address to receive token.
         uint16 tokenId, // The token id.
         uint256 amount // The amount of token.
     );
     event SendToken(
-        uint64 indexed targetChainSelector, // The chain selector of the target chain.
-        address receiver, // The address of the receiver on the target chain.
+        uint256 indexed targetChainSelector, // The chain selector of the target chain.
         uint16 msgType, // The type of message.
         address toAddress, // The address to receive token.
         uint16 tokenId, // The token id.
@@ -43,15 +41,14 @@ contract Bridge is Ownable, ReentrancyGuard {
         uint16 tokenId, // The token id.
         uint256 amount // The amount of token.
     );
-    event SetTargetChainSelector(uint64 _targetChainSelector);
+    event SetTargetChainSelector(uint256 _targetChainSelector);
     event SetTargetBridge(address _targetBridge);
     event SetProtocolFee(uint256 _protocolFee);
-    event AddToken(uint16 _tokenId, address _token);
-    event RemoveToken(uint16 _tokenId, address _token);
+    event AddToken(uint16 _tokenId, address _token, uint256 targetChainSelector);
+    event RemoveToken(uint16 _tokenId, address _token, uint256 targetChainSelector);
     event Withdraw(address _beneficiary);
     event WithdrawToken(
-        uint64 indexed targetChainSelector, // The chain selector of the target chain.
-        address receiver, // The address of the receiver on the target chain.
+        uint256 indexed targetChainSelector, // The chain selector of the target chain.
         uint16 msgType, // The type of message.
         address toAddress, // The address to receive token.
         uint16 tokenId, // The token id.
@@ -64,19 +61,19 @@ contract Bridge is Ownable, ReentrancyGuard {
     uint16 internal constant TYPE_REQUEST_WITHDRAW_TOKEN = 3;
 
 
-    mapping(uint16 => address) public id2token; // tokenId => address
-    mapping(address => uint16) public token2id; // address => tokenId
-    uint16[] public tokenIds;
-    mapping(uint16 => uint256) private tokenIdIndex;
+    mapping(uint256 => mapping(uint16 => address)) public id2token; // tokenId => address
+    mapping(uint256 => mapping(address => uint16)) public token2id; // address => tokenId
+    mapping(uint256 => uint16[]) public tokenIds;
+    mapping(uint256 => mapping(uint16 => uint256)) private tokenIdIndex;
 
     // uint16 public lastTokenId;
-    mapping(uint16 => uint256) public targetBalance; // tokenId => amount
-    uint64 public targetChainSelector;
+    mapping(uint256 => mapping(uint16 => uint256)) public targetBalance; // targetChain's tokenId => amount
+    uint256 public targetChainSelector;
     address public targetBridge;
     uint256 public protocolFee;
 
-    modifier isSupportedToken(address _token) {
-        require(token2id[_token] != 0, "Not supported token");
+    modifier isSupportedToken(address _token, uint256 _targetChainSelector) {
+        require(token2id[_targetChainSelector][_token] != 0, "Not supported token");
         _;
     }
 
@@ -84,31 +81,31 @@ contract Bridge is Ownable, ReentrancyGuard {
 
     receive() external payable {}
 
-    function getSupportedTokens() public view returns (address[] memory) {
-        uint256 tokenCount = tokenIds.length;
+    function getSupportedTokens(uint256 _targetChainSelector) public view returns (address[] memory) {
+        uint256 tokenCount = tokenIds[_targetChainSelector].length;
         address[] memory tokens = new address[](tokenCount);
         for (uint16 id = 0; id < tokenCount; ++id) {
-            uint16 tokenId = tokenIds[id];
-            tokens[id] = id2token[tokenId];
+            uint16 tokenId = tokenIds[_targetChainSelector][id];
+            tokens[id] = id2token[_targetChainSelector][tokenId];
         }
         return tokens;
     }
 
     function addLiquidity(
         address token,
-        uint256 amount
-    ) external payable nonReentrant isSupportedToken(token) {
+        uint256 amount,
+        uint256 _targetChainSelector
+    ) external nonReentrant isSupportedToken(token, _targetChainSelector) {
         // Check received amount
         uint256 balanceBefore = IERC20(token).balanceOf(address(this));
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         uint256 balanceAfter = IERC20(token).balanceOf(address(this));
         uint256 amountToBridge = balanceAfter - balanceBefore;
-        uint16 tokenId = token2id[token];
+        uint16 tokenId = token2id[_targetChainSelector][token];
 
         // Emit an event with message details
         emit AddLiquidity(
-            targetChainSelector,
-            targetBridge,
+            _targetChainSelector,
             TYPE_REQUEST_ADD_LIQUIDITY,
             msg.sender,
             tokenId,
@@ -118,22 +115,22 @@ contract Bridge is Ownable, ReentrancyGuard {
 
     function send(
         address token,
-        uint256 amount
-    ) external payable nonReentrant isSupportedToken(token) {
+        uint256 amount,
+        uint256 _targetChainSelector
+    ) external payable nonReentrant isSupportedToken(token, _targetChainSelector) {
         if (msg.value < protocolFee) revert InsufficientFee();
         // Check received amount
         uint256 balanceBefore = IERC20(token).balanceOf(address(this));
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
         uint256 balanceAfter = IERC20(token).balanceOf(address(this));
         uint256 amountToBridge = balanceAfter - balanceBefore;
-        uint16 tokenId = token2id[token];
+        uint16 tokenId = token2id[_targetChainSelector][token];
         
-        if (amountToBridge > targetBalance[tokenId]) revert InsufficientInTarget();
+        if (amountToBridge > targetBalance[_targetChainSelector][tokenId]) revert InsufficientInTarget();
         
         // Emit an event with message details
         emit SendToken(
-            targetChainSelector,
-            targetBridge,
+            _targetChainSelector,
             TYPE_REQUEST_SEND_TOKEN,
             msg.sender,
             tokenId,
@@ -145,16 +142,17 @@ contract Bridge is Ownable, ReentrancyGuard {
         uint16 msgType,
         address toAddress,
         uint16 tokenId,
-        uint256 amount
+        uint256 amount,
+        uint256 _sourceChainSelector
     ) external onlyOwner nonReentrant {
         if (msgType == TYPE_REQUEST_ADD_LIQUIDITY) {
-            targetBalance[tokenId] += amount;
+            targetBalance[_sourceChainSelector][tokenId] += amount;
         } else if (msgType == TYPE_REQUEST_SEND_TOKEN) {
-            address token = id2token[tokenId];
+            address token = id2token[_sourceChainSelector][tokenId];
             IERC20(token).safeTransfer(toAddress, amount);
-            targetBalance[tokenId] += amount;
+            targetBalance[_sourceChainSelector][tokenId] += amount;
         } else if (msgType == TYPE_REQUEST_WITHDRAW_TOKEN) {
-            targetBalance[tokenId] -= amount;
+            targetBalance[_sourceChainSelector][tokenId] -= amount;
         } else {
             revert InvalidMessageType();
         }
@@ -167,59 +165,45 @@ contract Bridge is Ownable, ReentrancyGuard {
         );
     }
 
-    // Owner functions
-    function setTargetChainSelector(
-        uint64 _targetChainSelector
-    ) external onlyOwner {
-        require(_targetChainSelector != 0, "ChainSelector can't be 0");
-        targetChainSelector = _targetChainSelector;
-        emit SetTargetChainSelector(_targetChainSelector);
-    }
-
-    function setTargetBridge(address _targetBridge) external onlyOwner {
-        require(_targetBridge != address(0), "TargetBridge can't be 0x0");
-        targetBridge = _targetBridge;
-        emit SetTargetBridge(_targetBridge);
-    }
-
     function setProtocolFee(uint256 _protocolFee) external onlyOwner {
         require(_protocolFee != 0, "Zero fee");
         protocolFee = _protocolFee;
         emit SetProtocolFee(_protocolFee);
     }
 
-    function addToken(uint16 tokenId, address tokenAddress) external onlyOwner {
-        require(id2token[tokenId] == address(0), "Token ID already exists");
-        require(token2id[tokenAddress] == 0, "Token address already mapped");
+    function addToken(uint16 tokenId, address tokenAddress, uint256 _targetChainSelector) external onlyOwner {
+        require(id2token[_targetChainSelector][tokenId] == address(0), "Token ID already exists");
+        require(token2id[_targetChainSelector][tokenAddress] == 0, "Token address already mapped");
 
-        id2token[tokenId] = tokenAddress;
-        token2id[tokenAddress] = tokenId;
+        id2token[_targetChainSelector][tokenId] = tokenAddress;
+        token2id[_targetChainSelector][tokenAddress] = tokenId;
 
-        tokenIds.push(tokenId);
-        tokenIdIndex[tokenId] = tokenIds.length - 1;
+        tokenIds[_targetChainSelector].push(tokenId);
+        tokenIdIndex[_targetChainSelector][tokenId] = tokenIds[_targetChainSelector].length - 1;
 
-        emit AddToken(tokenId, tokenAddress);
+        emit AddToken(tokenId, tokenAddress, _targetChainSelector);
     }
 
     function removeToken(
-        uint16 tokenId
+        uint16 tokenId,
+        uint256 _targetChainSelector
     ) external onlyOwner {
-        require(id2token[tokenId] != address(0), "Token ID does not exist");
+        require(id2token[_targetChainSelector][tokenId] != address(0), "Token ID does not exist");
 
-        address tokenAddress = id2token[tokenId];
+        address tokenAddress = id2token[_targetChainSelector][tokenId];
 
-        delete id2token[tokenId];
-        delete token2id[tokenAddress];
+        delete id2token[_targetChainSelector][tokenId];
+        delete token2id[_targetChainSelector][tokenAddress];
 
-        uint256 index = tokenIdIndex[tokenId];
-        uint16 lastTokenId = tokenIds[tokenIds.length - 1];
-        tokenIds[index] = lastTokenId;
-        tokenIdIndex[lastTokenId] = index;
-        tokenIds.pop();
+        uint256 index = tokenIdIndex[_targetChainSelector][tokenId];
+        uint16 lastTokenId = tokenIds[_targetChainSelector][tokenIds[_targetChainSelector].length - 1];
+        tokenIds[_targetChainSelector][index] = lastTokenId;
+        tokenIdIndex[_targetChainSelector][lastTokenId] = index;
+        tokenIds[_targetChainSelector].pop();
         
-        delete tokenIdIndex[tokenId];
+        delete tokenIdIndex[_targetChainSelector][tokenId];
 
-        emit RemoveToken(tokenId, tokenAddress);
+        emit RemoveToken(tokenId, tokenAddress, _targetChainSelector);
     }
 
     /// @notice Allows the contract owner to withdraw the entire balance of Ether from the contract.
@@ -249,17 +233,18 @@ contract Bridge is Ownable, ReentrancyGuard {
     function withdrawToken(
         address token,
         uint256 amount,
-        address beneficiary
-    ) external payable onlyOwner isSupportedToken(token) {
+        address beneficiary,
+        uint256 _targetChainSelector
+    ) external payable onlyOwner isSupportedToken(token, _targetChainSelector) {
         if (amount == 0) revert NothingToWithdraw();
         uint256 balance = IERC20(token).balanceOf(address(this));
         if (amount > balance) revert InsufficientToWithdraw();
 
-        uint16 tokenId = token2id[token];
+        uint16 tokenId = token2id[_targetChainSelector][token];
+        IERC20(token).safeTransfer(beneficiary, amount);
 
         emit WithdrawToken(
-            targetChainSelector,
-            targetBridge,
+            _targetChainSelector,
             TYPE_REQUEST_WITHDRAW_TOKEN,
             msg.sender,
             tokenId,

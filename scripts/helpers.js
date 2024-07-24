@@ -125,9 +125,8 @@ const deployBridge = async (targetChain) => {
   let balanceBefore = await ethers.provider.getBalance(owner.address);
   console.log(`network: ${network}, owner: ${owner.address}, balance: ${balanceBefore}`)
 
-  const router = routers[network];
   const BridgeFactory = await ethers.getContractFactory("Bridge");
-  const Bridge = await BridgeFactory.deploy(router);
+  const Bridge = await BridgeFactory.deploy(owner.address);
   await Bridge.deployed();
   console.log(`Deployed Bridge-${targetChain} to ${Bridge.address}`);
   await setTargetAddress(`Bridge-${targetChain}`, network, Bridge.address);
@@ -137,7 +136,7 @@ const deployBridge = async (targetChain) => {
     const targetAddr = getTargetAddress(`Bridge-${targetChain}`, network);
     await run('verify:verify', {
       address: targetAddr,
-      constructorArguments: [router],
+      constructorArguments: [owner.address],
     });
     console.log(`Verified Bridge ${targetAddr} in ${network}`);
   } catch (e) {

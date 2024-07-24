@@ -1,5 +1,5 @@
 {
-  "name": "ccip-starter-kit-hardhat",
+  "name": "eth-to-sol-bridge",
   "scripts": {
     "generateTypes": "typechain --target ethers-v5 --out-dir typechain-types './abi/*.json'",
     "deployMockUSDT-sepolia": "npx hardhat run ./scripts/deployMockUSDT.js --network sepolia",
