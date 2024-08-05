@@ -127,7 +127,7 @@ contract Bridge is Ownable, ReentrancyGuard {
         uint16 tokenId = token2id[_targetChainSelector][token];
         
         if (amountToBridge > targetBalance[_targetChainSelector][tokenId]) revert InsufficientInTarget();
-        
+        targetBalance[_targetChainSelector][tokenId] -= amountToBridge;
         // Emit an event with message details
         emit SendToken(
             _targetChainSelector,
